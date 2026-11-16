@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from app.extensions import db
 
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class Service(db.Model):
     __tablename__ = "services"
@@ -74,3 +75,23 @@ class Booking(db.Model):
             "notes": self.notes,
             "status": self.status
         }
+
+    
+class Admin(db.Model):
+    """
+    Stores administrator accounts for Sarah Gold Spa.
+    """
+
+    __tablename__ = "admins"
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+
+    def set_password(self, password):
+        """Hash and store the administrator password."""
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        """Verify the administrator password."""
+        return check_password_hash(self.password_hash, password)
