@@ -18,11 +18,15 @@ def create_app():
     # Import models
     from app import models
 
-    # Register routes
+    # Import route blueprints
     from app.routes.main import main_bp
     from app.routes.bookings import bookings_bp
+    from app.routes.admin import admin_bp
 
+    # Register blueprints
     app.register_blueprint(main_bp)
     app.register_blueprint(bookings_bp)
+    app.register_blueprint(admin_bp)
 
     return app
+
