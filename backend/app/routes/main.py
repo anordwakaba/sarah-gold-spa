@@ -1,5 +1,5 @@
-
-from flask import Blueprint, jsonify
+ 
+from flask import Blueprint, jsonify, render_template
 
 from app.models import Service
 
@@ -8,11 +8,15 @@ from app.models import Service
 main_bp = Blueprint("main", __name__)
 
 
+@main_bp.route("/")
+def home():
+    """Display the Sarah Gold Spa homepage."""
+    return render_template("index.html")
+
+
 @main_bp.route("/api/services", methods=["GET"])
 def get_services():
-    """
-    Retrieve all massage and spa services.
-    """
+    """Retrieve all available spa services."""
 
     services = Service.query.all()
 
@@ -24,9 +28,7 @@ def get_services():
 
 @main_bp.route("/health", methods=["GET"])
 def health():
-    """
-    Check whether the Gold Spa API is running.
-    """
+    """Check whether the Gold Spa API is running."""
 
     return jsonify({
         "message": "Sarah Gold Spa API is running",
