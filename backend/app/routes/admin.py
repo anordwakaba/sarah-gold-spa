@@ -1,7 +1,10 @@
 
+from functools import wraps
+
 from flask import Blueprint, jsonify, request, session
 
-from app.models import Admin
+from app.extensions import db
+from app.models import Admin, Booking
 
 
 admin_bp = Blueprint(
@@ -9,6 +12,23 @@ admin_bp = Blueprint(
     __name__,
     url_prefix="/api/admin"
 )
+
+
+def admin_required(function):
+    """Allow access only to authenticated administrators."""
+
+    @wraps(function)
+    def decorated_function(*args, **kwargs):
+        admin_id = session.get("admin_id")
+
+        if not admin_id or not db.session.get(Admin, admin_id):
+            return jsonify({
+                "error": "Authentication required."
+            }), 401
+
+        return function(*args, **kwargs)
+
+    return decorated_function
 
 
 @admin_bp.route("/login", methods=["POST"])
@@ -39,7 +59,6 @@ def admin_login():
             "error": "Invalid username or password."
         }), 401
 
-    # Clear any previous session before creating a new one.
     session.clear()
     session["admin_id"] = admin.id
 
@@ -53,24 +72,11 @@ def admin_login():
 
 
 @admin_bp.route("/me", methods=["GET"])
+@admin_required
 def current_admin():
-    """Check whether an administrator is logged in."""
+    """Return the currently logged-in administrator."""
 
-    admin_id = session.get("admin_id")
-
-    if not admin_id:
-        return jsonify({
-            "error": "Authentication required."
-        }), 401
-
-    admin = Admin.query.get(admin_id)
-
-    if not admin:
-        session.clear()
-
-        return jsonify({
-            "error": "Admin account not found."
-        }), 401
+    admin = db.session.get(Admin, session["admin_id"])
 
     return jsonify({
         "admin": {
@@ -89,3 +95,66 @@ def admin_logout():
     return jsonify({
         "message": "Admin logged out successfully."
     }), 200
+
+
+@admin_bp.route("/bookings", methods=["GET"])
+@admin_required
+def get_all_bookings():
+    """Allow administrators to view all customer bookings."""
+
+    bookings = Booking.query.order_by(
+        Booking.created_at.desc()
+    ).all()
+
+    return jsonify({
+        "count": len(bookings),
+        "bookings": [
+            booking.to_dict()
+            for booking in bookings
+        ]
+    }), 200
+
+
+@admin_bp.route("/bookings/<int:booking_id>", methods=["PATCH"])
+@admin_required
+def update_booking_status(booking_id):
+    """Allow administrators to update a booking's status."""
+
+    data = request.get_json(silent=True) or {}
+    status = data.get("status")
+
+    allowed_statuses = [
+        "pending",
+        "confirmed",
+        "completed",
+        "cancelled"
+    ]
+
+    if not isinstance(status, str) or status not in allowed_statuses:
+        return jsonify({
+            "error": "Invalid status. Choose pending, confirmed, completed, or cancelled."
+        }), 400
+
+    booking = db.session.get(Booking, booking_id)
+
+    if not booking:
+        return jsonify({
+            "error": "Booking not found."
+        }), 404
+
+    booking.status = status
+
+    try:
+        db.session.commit()
+
+        return jsonify({
+            "message": "Booking status updated successfully.",
+            "booking": booking.to_dict()
+        }), 200
+
+    except Exception:
+        db.session.rollback()
+
+        return jsonify({
+            "error": "Unable to update booking status."
+        }), 500
