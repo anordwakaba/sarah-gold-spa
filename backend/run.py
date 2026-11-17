@@ -3,7 +3,7 @@ import click
 
 from app import create_app
 from app.extensions import db
-from app.models import Service, Admin
+from app.models import Service, Admin, Therapist
 
 
 # Create the Flask application
@@ -96,7 +96,35 @@ def seed():
 
     db.session.commit()
 
-    print(f"Successfully added {added_count} spa services!")
+    click.echo(f"Successfully added {added_count} spa services!")
+
+
+@app.cli.command("seed-therapists")
+def seed_therapists():
+    """Add four therapists to Sarah Gold Spa."""
+
+    therapists = [
+        "Therapist 1",
+        "Therapist 2",
+        "Therapist 3",
+        "Therapist 4"
+    ]
+
+    added_count = 0
+
+    for therapist_name in therapists:
+        existing_therapist = Therapist.query.filter_by(
+            name=therapist_name
+        ).first()
+
+        if not existing_therapist:
+            therapist = Therapist(name=therapist_name)
+            db.session.add(therapist)
+            added_count += 1
+
+    db.session.commit()
+
+    click.echo(f"Successfully added {added_count} therapists!")
 
 
 @app.cli.command("create-admin")
@@ -137,3 +165,4 @@ def create_admin():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
