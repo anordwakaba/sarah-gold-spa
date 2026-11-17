@@ -1,10 +1,10 @@
-
+ 
 from functools import wraps
 
 from flask import Blueprint, jsonify, request, session
 
 from app.extensions import db
-from app.models import Admin, Booking
+from app.models import Admin, Booking, Therapist
 
 
 admin_bp = Blueprint(
@@ -157,4 +157,142 @@ def update_booking_status(booking_id):
 
         return jsonify({
             "error": "Unable to update booking status."
+        }), 500
+
+
+# -----------------------------
+# THERAPIST MANAGEMENT
+# -----------------------------
+
+@admin_bp.route("/therapists", methods=["GET"])
+@admin_required
+def get_therapists():
+    """Allow administrators to view all therapists."""
+
+    therapists = Therapist.query.order_by(
+        Therapist.id.asc()
+    ).all()
+
+    return jsonify({
+        "count": len(therapists),
+        "therapists": [
+            {
+                "id": therapist.id,
+                "name": therapist.name,
+                "is_active": therapist.is_active
+            }
+            for therapist in therapists
+        ]
+    }), 200
+
+
+@admin_bp.route("/therapists", methods=["POST"])
+@admin_required
+def add_therapist():
+    """Allow administrators to add new therapists."""
+
+    data = request.get_json(silent=True) or {}
+    name = data.get("name")
+
+    if not isinstance(name, str) or not name.strip():
+        return jsonify({
+            "error": "Therapist name is required."
+        }), 400
+
+    name = name.strip()
+
+    if Therapist.query.filter_by(name=name).first():
+        return jsonify({
+            "error": "A therapist with this name already exists."
+        }), 409
+
+    therapist = Therapist(name=name, is_active=True)
+
+    try:
+        db.session.add(therapist)
+        db.session.commit()
+
+        return jsonify({
+            "message": "Therapist added successfully.",
+            "therapist": {
+                "id": therapist.id,
+                "name": therapist.name,
+                "is_active": therapist.is_active
+            }
+        }), 201
+
+    except Exception:
+        db.session.rollback()
+
+        return jsonify({
+            "error": "Unable to add therapist."
+        }), 500
+
+
+@admin_bp.route("/therapists/<int:therapist_id>", methods=["PATCH"])
+@admin_required
+def update_therapist(therapist_id):
+    """Allow administrators to rename or change therapist status."""
+
+    therapist = db.session.get(Therapist, therapist_id)
+
+    if not therapist:
+        return jsonify({
+            "error": "Therapist not found."
+        }), 404
+
+    data = request.get_json(silent=True) or {}
+
+    if "name" in data:
+        name = data["name"]
+
+        if not isinstance(name, str) or not name.strip():
+            return jsonify({
+                "error": "Therapist name cannot be empty."
+            }), 400
+
+        name = name.strip()
+
+        existing = Therapist.query.filter(
+            Therapist.name == name,
+            Therapist.id != therapist_id
+        ).first()
+
+        if existing:
+            return jsonify({
+                "error": "Another therapist already has this name."
+            }), 409
+
+        therapist.name = name
+
+    if "is_active" in data:
+        if not isinstance(data["is_active"], bool):
+            return jsonify({
+                "error": "is_active must be true or false."
+            }), 400
+
+        therapist.is_active = data["is_active"]
+
+    if "name" not in data and "is_active" not in data:
+        return jsonify({
+            "error": "Provide a name or is_active value to update."
+        }), 400
+
+    try:
+        db.session.commit()
+
+        return jsonify({
+            "message": "Therapist updated successfully.",
+            "therapist": {
+                "id": therapist.id,
+                "name": therapist.name,
+                "is_active": therapist.is_active
+            }
+        }), 200
+
+    except Exception:
+        db.session.rollback()
+
+        return jsonify({
+            "error": "Unable to update therapist."
         }), 500
