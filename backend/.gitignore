@@ -1,1 +1,11 @@
+
+# Environment variables and secrets
+.env
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Local files
 cookies.txt

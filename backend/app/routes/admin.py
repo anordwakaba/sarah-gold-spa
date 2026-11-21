@@ -1,3 +1,11 @@
+import secrets
+import smtplib
+
+from email.message import EmailMessage
+from urllib.parse import quote
+
+from flask import current_app
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
  
 from functools import wraps
 
@@ -295,4 +303,179 @@ def update_therapist(therapist_id):
 
         return jsonify({
             "error": "Unable to update therapist."
+        }), 500
+
+# -----------------------------
+# ADMIN PASSWORD RECOVERY
+# -----------------------------
+
+def send_password_reset_email(admin, reset_link):
+    """Send a password reset link to the administrator."""
+
+    message = EmailMessage()
+    message["Subject"] = "Sarah Gold Spa - Password Reset"
+    message["From"] = current_app.config["MAIL_DEFAULT_SENDER"]
+    message["To"] = admin.email
+
+    message.set_content(
+        f"""Hello {admin.username},
+
+We received a request to reset your Sarah Gold Spa administrator password.
+
+Use the link below to create a new password:
+
+{reset_link}
+
+This link expires in 30 minutes and can only be used once.
+
+If you did not request this reset, you can ignore this email.
+
+Sarah Gold Spa
+"""
+    )
+
+    with smtplib.SMTP(
+        current_app.config["MAIL_SERVER"],
+        current_app.config["MAIL_PORT"],
+        timeout=20
+    ) as server:
+        server.starttls()
+        server.login(
+            current_app.config["MAIL_USERNAME"],
+            current_app.config["MAIL_PASSWORD"]
+        )
+        server.send_message(message)
+
+
+@admin_bp.route("/forgot-password", methods=["POST"])
+def forgot_password():
+    """Send a password reset link to the registered email."""
+
+    generic_response = {
+        "message": "If an account with that email exists, a password reset link will be sent."
+    }
+
+    data = request.get_json(silent=True) or {}
+    email = data.get("email")
+
+    if not isinstance(email, str) or not email.strip():
+        return jsonify(generic_response), 200
+
+    email = email.strip().lower()
+
+    admin = Admin.query.filter_by(email=email).first()
+
+    if not admin:
+        return jsonify(generic_response), 200
+
+    if not current_app.config.get("MAIL_USERNAME") or not current_app.config.get("MAIL_PASSWORD") or not current_app.config.get("MAIL_DEFAULT_SENDER"):
+        current_app.logger.error("Password reset email configuration is incomplete.")
+        return jsonify(generic_response), 200
+
+    nonce = secrets.token_hex(32)
+    admin.password_reset_nonce = nonce
+
+    try:
+        db.session.commit()
+
+        serializer = URLSafeTimedSerializer(
+            current_app.config["SECRET_KEY"],
+            salt="admin-password-reset"
+        )
+
+        token = serializer.dumps({
+            "admin_id": admin.id,
+            "email": admin.email,
+            "nonce": nonce
+        })
+
+        reset_link = (
+            current_app.config["FRONTEND_URL"].rstrip("/")
+            + "/reset-password?token="
+            + quote(token)
+        )
+
+        send_password_reset_email(admin, reset_link)
+
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception("Unable to send password reset email.")
+
+    return jsonify(generic_response), 200
+
+
+@admin_bp.route("/reset-password", methods=["POST"])
+def reset_password():
+    """Verify a reset token and save a new password."""
+
+    data = request.get_json(silent=True) or {}
+
+    token = data.get("token")
+    new_password = data.get("password")
+
+    if not isinstance(token, str) or not isinstance(new_password, str):
+        return jsonify({
+            "error": "A valid reset token and new password are required."
+        }), 400
+
+    if len(new_password) < 12:
+        return jsonify({
+            "error": "Password must contain at least 12 characters."
+        }), 400
+
+    serializer = URLSafeTimedSerializer(
+        current_app.config["SECRET_KEY"],
+        salt="admin-password-reset"
+    )
+
+    try:
+        token_data = serializer.loads(token, max_age=1800)
+
+    except SignatureExpired:
+        return jsonify({
+            "error": "This reset link has expired. Request a new one."
+        }), 400
+
+    except BadSignature:
+        return jsonify({
+            "error": "Invalid password reset link."
+        }), 400
+
+    admin_id = token_data.get("admin_id")
+    email = token_data.get("email")
+    nonce = token_data.get("nonce")
+
+    admin = db.session.get(Admin, admin_id)
+
+    if not admin or not isinstance(nonce, str):
+        return jsonify({
+            "error": "Invalid or already used reset link."
+        }), 400
+
+    if (
+        admin.email != email
+        or not admin.password_reset_nonce
+        or not secrets.compare_digest(admin.password_reset_nonce, nonce)
+    ):
+        return jsonify({
+            "error": "Invalid or already used reset link."
+        }), 400
+
+    try:
+        admin.set_password(new_password)
+
+        # Invalidate this reset link so it cannot be reused.
+        admin.password_reset_nonce = None
+
+        db.session.commit()
+
+        return jsonify({
+            "message": "Password reset successful. You can now log in."
+        }), 200
+
+    except Exception:
+        db.session.rollback()
+
+        return jsonify({
+            "error": "Unable to reset password. Please try again."
         }), 500

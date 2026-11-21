@@ -132,9 +132,13 @@ def create_admin():
     """Create a secure administrator account."""
 
     username = click.prompt("Enter admin username").strip()
+    email = click.prompt("Enter admin email").strip().lower()
 
     if not username:
         raise click.ClickException("Username cannot be empty.")
+
+    if not email or "@" not in email:
+        raise click.ClickException("Enter a valid email address.")
 
     existing_admin = Admin.query.filter_by(
         username=username
@@ -142,6 +146,13 @@ def create_admin():
 
     if existing_admin:
         raise click.ClickException("This admin username already exists.")
+
+    existing_email = Admin.query.filter_by(
+        email=email
+    ).first()
+
+    if existing_email:
+        raise click.ClickException("This email is already registered.")
 
     password = click.prompt(
         "Enter admin password",
@@ -154,7 +165,7 @@ def create_admin():
             "Password must contain at least 12 characters."
         )
 
-    admin = Admin(username=username)
+    admin = Admin(username=username, email=email)
     admin.set_password(password)
 
     db.session.add(admin)
@@ -163,6 +174,31 @@ def create_admin():
     click.echo("Admin account created successfully!")
 
 
+@app.cli.command("set-admin-email")
+def set_admin_email():
+    """Set or update an existing administrator's email."""
+
+    username = click.prompt("Enter admin username").strip()
+    email = click.prompt("Enter new admin email").strip().lower()
+
+    if not email or "@" not in email:
+        raise click.ClickException("Enter a valid email address.")
+
+    admin = Admin.query.filter_by(username=username).first()
+
+    if not admin:
+        raise click.ClickException("Admin account not found.")
+
+    existing_email = Admin.query.filter_by(email=email).first()
+
+    if existing_email and existing_email.id != admin.id:
+        raise click.ClickException("This email belongs to another admin.")
+
+    admin.email = email
+    db.session.commit()
+
+    click.echo("Administrator email updated successfully!")
+
+
 if __name__ == "__main__":
     app.run(debug=True)
-
