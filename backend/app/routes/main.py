@@ -10,9 +10,11 @@ main_bp = Blueprint("main", __name__)
 
 @main_bp.route("/")
 def home():
-    """Display the Sarah Gold Spa homepage."""
-    return render_template("index.html")
-
+    """Display API information."""
+    return jsonify({
+        "message": "Welcome to Sarah Gold Spa API",
+        "status": "success"
+    }), 200
 
 @main_bp.route("/api/services", methods=["GET"])
 def get_services():
