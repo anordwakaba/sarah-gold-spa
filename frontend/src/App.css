@@ -2548,3 +2548,148 @@ html[data-theme="light"] .services-message {
     flex-wrap: wrap;
   }
 }
+
+/* =====================================
+   ADMIN LIGHT AND DARK THEME SUPPORT
+===================================== */
+
+.admin-theme-control {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+
+.admin-theme-toggle {
+  white-space: nowrap;
+}
+
+/* Smooth theme transition */
+.admin-page,
+.admin-page article,
+.admin-page input,
+.admin-page select,
+.admin-page button {
+  transition: background-color 0.25s ease, color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+/* LIGHT THEME */
+html[data-theme="light"] .admin-page {
+  background: #f8f5ee;
+  color: #29251e;
+}
+
+html[data-theme="light"] .admin-page h1,
+html[data-theme="light"] .admin-page h2,
+html[data-theme="light"] .admin-page h3,
+html[data-theme="light"] .admin-page p,
+html[data-theme="light"] .admin-page label {
+  color: #29251e;
+}
+
+html[data-theme="light"] .admin-page .eyebrow {
+  color: #94702e;
+}
+
+html[data-theme="light"] .admin-login,
+html[data-theme="light"] .admin-stats article,
+html[data-theme="light"] .therapist-card,
+html[data-theme="light"] .admin-booking-card {
+  background: #fffdf8;
+  color: #29251e;
+  border: 1px solid #e8dfcc;
+}
+
+html[data-theme="light"] .admin-login input,
+html[data-theme="light"] .admin-page input,
+html[data-theme="light"] .admin-page select {
+  background: #fff;
+  color: #29251e;
+  border: 1px solid #d8cdb7;
+}
+
+html[data-theme="light"] .admin-page input::placeholder {
+  color: #928979;
+}
+
+html[data-theme="light"] .admin-stats article span,
+html[data-theme="light"] .admin-detail-label,
+html[data-theme="light"] .admin-page small {
+  color: #655e52;
+}
+
+html[data-theme="light"] .admin-section-heading > span,
+html[data-theme="light"] .admin-price strong {
+  color: #94702e;
+}
+
+html[data-theme="light"] .admin-page button {
+  background: #c9a65b;
+  color: #17140e;
+  border: 1px solid #b38a3e;
+}
+
+html[data-theme="light"] .admin-page button:hover {
+  background: #b38a3e;
+  color: #fff;
+}
+
+html[data-theme="light"] .admin-page button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+html[data-theme="light"] .admin-page .admin-logout {
+  background: #29251e;
+  color: #fffdf8;
+  border-color: #29251e;
+}
+
+html[data-theme="light"] .admin-page .admin-logout:hover {
+  background: #514a3e;
+}
+
+html[data-theme="light"] .admin-page a {
+  color: #94702e;
+}
+
+html[data-theme="light"] .admin-page a:hover {
+  color: #6f511c;
+}
+
+html[data-theme="light"] .admin-page .admin-error {
+  color: #a52d2d;
+}
+
+html[data-theme="light"] .admin-page .admin-success {
+  color: #247443;
+}
+
+html[data-theme="light"] .admin-page .therapist-active {
+  color: #247443;
+}
+
+html[data-theme="light"] .admin-page .therapist-inactive {
+  color: #a52d2d;
+}
+
+html[data-theme="light"] .admin-page .admin-back {
+  color: #94702e;
+}
+
+/* Mobile layout for admin theme controls */
+@media (max-width: 768px) {
+  .admin-header {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .admin-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .admin-theme-control {
+    margin-bottom: 20px;
+  }
+}

@@ -4,6 +4,36 @@ import { useEffect, useState } from 'react'
 const ADMIN_API = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin`
 
 // =====================================
+// SHARED ADMIN THEME TOGGLE
+// =====================================
+
+function ThemeToggle() {
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem('spa-theme') || 'dark'
+  )
+
+  useEffect(() => {
+    localStorage.setItem('spa-theme', theme)
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
+
+  return (
+    <button
+      type="button"
+      className="theme-toggle admin-theme-toggle"
+      onClick={() =>
+        setTheme((current) =>
+          current === 'dark' ? 'light' : 'dark'
+        )
+      }
+      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+    >
+      {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+    </button>
+  )
+}
+
+// =====================================
 // ADMIN LOGIN AND DASHBOARD
 // =====================================
 
@@ -300,6 +330,10 @@ function Admin() {
   if (!admin && forgotMode) {
     return (
       <main className="admin-page">
+        <div className="admin-theme-control">
+          <ThemeToggle />
+        </div>
+
         <form
           className="admin-login"
           onSubmit={handleForgotPassword}
@@ -361,6 +395,10 @@ function Admin() {
   if (!admin) {
     return (
       <main className="admin-page">
+        <div className="admin-theme-control">
+          <ThemeToggle />
+        </div>
+
         <form className="admin-login" onSubmit={handleLogin}>
           <p className="eyebrow">SARAH GOLD SPA</p>
 
@@ -428,6 +466,8 @@ function Admin() {
         </div>
 
         <div className="admin-actions">
+          <ThemeToggle />
+
           <button
             onClick={() => {
               fetchBookings()
@@ -777,6 +817,10 @@ export function ResetPassword() {
 
   return (
     <main className="admin-page">
+      <div className="admin-theme-control">
+        <ThemeToggle />
+      </div>
+
       <form
         className="admin-login"
         onSubmit={handleResetPassword}
@@ -850,4 +894,4 @@ export function ResetPassword() {
 }
 
 export default Admin
- 
+
