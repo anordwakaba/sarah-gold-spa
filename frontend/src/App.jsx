@@ -3,16 +3,16 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import Admin, { ResetPassword } from './admin/Admin.jsx'
 
-import swedishImage from './assets/treatments/pexels-tima-miroshnichenko-6187270.jpg'
-import deepTissueImage from './assets/treatments/pexels-tima-miroshnichenko-6186755.jpg'
-import bodyToBodyImage from './assets/treatments/pexels-jonathanborba-27684599.jpg'
-import thaiImage from './assets/treatments/pexels-tima-miroshnichenko-6187267.jpg'
-import fourHandsImage from './assets/treatments/pexels-tima-miroshnichenko-6188032.jpg'
-import scrubImage from './assets/treatments/pexels-koolshooters-6628656.jpg'
-import backImage from './assets/treatments/pexels-shkrabaanthony-6076140.jpg'
-import reflexologyImage from './assets/treatments/pexels-dmitry-ovsyannikov-271243380-32729955.jpg'
-import sportsImage from './assets/treatments/pexels-recovery-sport-center-2147880161-29807421.jpg'
-import couplesImage from './assets/treatments/pexels-jonathanborba-19641806.jpg'
+import swedishImage from './assets/treatments/pexels-tima-miroshnichenko-6187270.webp'
+import deepTissueImage from './assets/treatments/pexels-tima-miroshnichenko-6186755.webp'
+import bodyToBodyImage from './assets/treatments/pexels-jonathanborba-27684599.webp'
+import thaiImage from './assets/treatments/pexels-tima-miroshnichenko-6187267.webp'
+import fourHandsImage from './assets/treatments/pexels-tima-miroshnichenko-6188032.webp'
+import scrubImage from './assets/treatments/pexels-koolshooters-6628656.webp'
+import backImage from './assets/treatments/pexels-shkrabaanthony-6076140.webp'
+import reflexologyImage from './assets/treatments/pexels-dmitry-ovsyannikov-271243380-32729955.webp'
+import sportsImage from './assets/treatments/pexels-recovery-sport-center-2147880161-29807421.webp'
+import couplesImage from './assets/treatments/pexels-jonathanborba-19641806.webp'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
@@ -380,6 +380,8 @@ function App() {
               <article className="service-card" key={service.id}>
                 <img
                   src={getTreatmentImage(service.name)}
+                  loading="lazy"
+                  decoding="async"
                   alt={`${service.name} treatment at Sarah Gold Spa`}
                   className="service-image"
                 />
