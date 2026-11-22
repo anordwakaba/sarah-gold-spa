@@ -48,3 +48,8 @@ class Config:
         "FRONTEND_URL",
         "http://localhost:5173"
     )
+    SESSION_COOKIE_SAMESITE = (
+        "None" if FRONTEND_URL.startswith("https://") else "Lax"
+    )
+    SESSION_COOKIE_SECURE = FRONTEND_URL.startswith("https://")
+    SESSION_COOKIE_HTTPONLY = True
