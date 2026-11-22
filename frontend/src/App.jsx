@@ -65,6 +65,16 @@ const highlights = [
 ]
 
 function App() {
+  // Light and dark theme preference
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem('spa-theme') || 'dark'
+  )
+
+  useEffect(() => {
+    localStorage.setItem('spa-theme', theme)
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
+
   const [services, setServices] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -244,14 +254,29 @@ function App() {
           ))}
         </nav>
 
-        <a
-          href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hello Sarah Gold Spa! I would like to make a booking.')}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="nav-booking"
-        >
-          WhatsApp Booking
-        </a>
+        <div className="navbar-actions">
+          <button
+            type="button"
+            className="theme-toggle"
+            onClick={() =>
+              setTheme((current) =>
+                current === 'dark' ? 'light' : 'dark'
+              )
+            }
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+          >
+            {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+          </button>
+
+          <a
+            href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hello Sarah Gold Spa! I would like to make a booking.')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="nav-booking"
+          >
+            WhatsApp Booking
+          </a>
+        </div>
       </header>
 
       {/* Hero */}

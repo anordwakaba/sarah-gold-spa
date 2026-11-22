@@ -2359,3 +2359,192 @@ n   MOBILE RESPONSIVENESS
 .copyright {
   color: #c4bcae;
 }
+
+/* =========================================
+   SARAH GOLD SPA - THEME TOGGLE
+========================================= */
+
+/* Navigation theme toggle */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.theme-toggle {
+  padding: 11px 16px;
+  border: 1px solid #c9a65b;
+  border-radius: 4px;
+  background: transparent;
+  color: #d5b36a;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+  background: #c9a65b;
+  color: #11100d;
+}
+
+/* Light theme colors */
+html[data-theme="light"] body {
+  background: #f8f5ee;
+  color: #29251e;
+}
+
+html[data-theme="light"] .navbar {
+  background: #fffdf8;
+  border-bottom-color: #e8dfcc;
+}
+
+html[data-theme="light"] .brand-subtitle {
+  color: #655c4d;
+}
+
+html[data-theme="light"] .nav-links a {
+  color: #514a3e;
+}
+
+html[data-theme="light"] .nav-links a:hover {
+  color: #a47c2d;
+}
+
+html[data-theme="light"] .theme-toggle {
+  color: #8a6726;
+  border-color: #b38a3e;
+}
+
+html[data-theme="light"] .theme-toggle:hover {
+  background: #c9a65b;
+  color: #fff;
+}
+
+html[data-theme="light"] .about-section,
+html[data-theme="light"] .highlights-section,
+html[data-theme="light"] .services-section,
+html[data-theme="light"] .booking-section {
+  background: #f8f5ee;
+  color: #29251e;
+}
+
+html[data-theme="light"] .about-content h2,
+html[data-theme="light"] .section-heading h2,
+html[data-theme="light"] .booking-section h2 {
+  color: #29251e;
+}
+
+html[data-theme="light"] .about-content p,
+html[data-theme="light"] .section-heading > p:not(.eyebrow),
+html[data-theme="light"] .booking-section > p:not(.eyebrow) {
+  color: #655e52;
+}
+
+html[data-theme="light"] .highlight-card,
+html[data-theme="light"] .service-card {
+  background: #fffdf8;
+  border: 1px solid #e8dfcc;
+  color: #29251e;
+}
+
+html[data-theme="light"] .highlight-card h3,
+html[data-theme="light"] .service-card h3 {
+  color: #29251e;
+}
+
+html[data-theme="light"] .highlight-card p,
+html[data-theme="light"] .service-card p {
+  color: #655e52;
+}
+
+html[data-theme="light"] .service-duration {
+  color: #8a6726;
+}
+
+html[data-theme="light"] .service-price {
+  color: #9a742e;
+}
+
+html[data-theme="light"] .service-book-link,
+html[data-theme="light"] .text-link {
+  color: #94702e;
+}
+
+html[data-theme="light"] .booking-form {
+  background: #fffdf8;
+  border: 1px solid #e8dfcc;
+}
+
+html[data-theme="light"] .booking-field label {
+  color: #393329;
+}
+
+html[data-theme="light"] .booking-hint,
+html[data-theme="light"] .booking-phone {
+  color: #655e52;
+}
+
+html[data-theme="light"] .booking-field input,
+html[data-theme="light"] .booking-field textarea {
+  background: #fff;
+  color: #29251e;
+  border: 1px solid #d8cdb7;
+}
+
+html[data-theme="light"] .booking-field input::placeholder,
+html[data-theme="light"] .booking-field textarea::placeholder {
+  color: #928979;
+}
+
+html[data-theme="light"] .booking-service-option {
+  color: #393329;
+}
+
+html[data-theme="light"] .booking-selection-total {
+  color: #8a6726;
+}
+
+html[data-theme="light"] .booking-divider {
+  color: #827663;
+}
+
+html[data-theme="light"] .footer {
+  background: #eae3d5;
+  border-top: 1px solid #d8cdb7;
+}
+
+html[data-theme="light"] .footer-links a,
+html[data-theme="light"] .footer-contact p,
+html[data-theme="light"] .footer-brand p {
+  color: #514a3e;
+}
+
+html[data-theme="light"] .footer-links h3,
+html[data-theme="light"] .footer-contact h3 {
+  color: #29251e;
+}
+
+html[data-theme="light"] .copyright {
+  color: #655e52;
+  border-top-color: #d8cdb7;
+}
+
+html[data-theme="light"] .services-message {
+  color: #514a3e;
+}
+
+/* Mobile navigation */
+@media (max-width: 768px) {
+  .navbar {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+
+  .navbar-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
